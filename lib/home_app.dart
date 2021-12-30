@@ -2,6 +2,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sipisat/menu/bap/add_bap.dart';
 import 'package:sipisat/menu/bap/pindah_tangan.dart';
 import 'package:sipisat/menu/inventoy/all_inventory.dart';
@@ -11,6 +12,7 @@ import 'package:sipisat/menu/umum/log.dart';
 import 'package:sipisat/menu/users/all_users.dart';
 // import 'package:http/http.dart' as http;
 import 'package:sipisat/models/bap_model.dart';
+import 'package:sipisat/models/log_models.dart';
 import 'package:sipisat/models/users_model.dart';
 
 import 'auth/login.dart';
@@ -127,7 +129,7 @@ class _HomeAppState extends State<HomeApp> {
 
   /////////
 
-  static Future<void> ambilData() async {
+  void ambilData() async {
     // data staff
     List<StaffModel> stafs = await StaffModel.getData();
     print('semua data staff $stafs');
@@ -140,19 +142,40 @@ class _HomeAppState extends State<HomeApp> {
     // data user
     List<UserModel> users = await UserModel.getData();
     print('semua data inv $users');
+    LogModel.ambilData();
     if (stafs.length != 0 ||
         invs.length != 0 ||
         baps.length != 0 ||
         users.length != 0) {
       print('============ selesai ambil data dari home app =================');
     }
+    cekToken();
+    setState(() {});
   }
 
   /////////
+  cekToken() async {
+    SharedPreferences sh = await SharedPreferences.getInstance();
+    final id = sh.getString('id');
+    final level = sh.getString('level');
+    print('home========================================== init $id ->$level');
+    if (id == null) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => LoginPage()));
+    } else {
+      if (level == 'user') {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => AllInventory()));
+      }
+    }
+    setState(() {});
+  }
 
+  /////////
   @override
   void initState() {
     ambilData();
+    setState(() {});
     super.initState();
   }
 
@@ -168,11 +191,10 @@ class _HomeAppState extends State<HomeApp> {
         actions: [
           // tombol logout
           IconButton(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => LoginPage()),
-                  (route) => false);
+            onPressed: () async {
+              SharedPreferences sh = await SharedPreferences.getInstance();
+              sh.clear();
+              cekToken();
             },
             icon: Icon(
               Icons.logout,
@@ -202,6 +224,15 @@ class _HomeAppState extends State<HomeApp> {
                 ),
               ),
               // main menu
+              // TextButton(
+              //     onPressed: () async {
+              //       SharedPreferences sh =
+              //           await SharedPreferences.getInstance();
+              //       final id = sh.getString('id');
+              //       sh.clear();
+              //       setState(() {});
+              //     },
+              //     child: Text('logout')),
               Positioned(
                 top: size.height * .2,
                 child: Container(

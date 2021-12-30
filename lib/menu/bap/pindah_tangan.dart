@@ -10,9 +10,10 @@ import 'package:sipisat/common.dart';
 import 'package:sipisat/component/textfield.dart';
 import 'package:sipisat/generate_pdf.dart';
 import 'package:sipisat/generate_tabel.dart';
-import 'package:sipisat/home_app.dart';
+// import 'package:sipisat/home_app.dart';
 import 'package:sipisat/models/bap_model.dart';
 import 'package:sipisat/models/inventory_model.dart';
+import 'package:sipisat/models/log_models.dart';
 import 'package:sipisat/models/staff_model.dart';
 
 import 'all_bap.dart';
@@ -45,10 +46,13 @@ class _PindahTanganState extends State<PindahTangan> {
   Uint8List? tabel;
   String? idSuratNew;
   int updateJumlah = 0;
+  int? jumlahBaru;
 
   var isAInv = true;
 
   File? pdf;
+
+  int? dikurangi;
 
   TextEditingController countToSend = TextEditingController();
 
@@ -98,100 +102,202 @@ class _PindahTanganState extends State<PindahTangan> {
         child: ListView(
           children: [
             // if (selectedBap == null)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: BuildInput(
-                  controllers: idSurat,
-                  obsText: false,
-                  kyType: TextInputType.number,
-                  brd: InputBorder.none,
-                  hnt: 'Masukkan id surat',
-                ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              margin: EdgeInsets.symmetric(horizontal: 5),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Colors.grey.shade200),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                      child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5),
+                    child: BuildInput(
+                      controllers: idSurat,
+                      obsText: false,
+                      kyType: TextInputType.number,
+                      brd: InputBorder.none,
+                      hnt: 'Masukkan id surat',
+                    ),
+                  )),
+                  OutlinedButton(
+                    onPressed: () {
+                      /// cek jika id yang dimasukkan ada atau tidak
+                      // idSurat.text = '';
+                      // allBap.removeWhere(
+                      //     (element) => element.idSurat != idSurat.text);
+                      print('masuk fungsi jumlah bap = ${allBap.length}');
+                      if (allBap.isEmpty) {
+                        print('kosong');
+                        showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                                  title: Text('Tidak Ditemukan'),
+                                  content: Text(
+                                      "Mohon cek lagi id surat yang anda masukkan."),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text('Coba lagi'))
+                                  ],
+                                ));
+                        idSurat.text = '';
+                        return;
+                      }
+                      //////////
+                      selectedBap = allBap.firstWhere(
+                          (element) => element.idSurat == idSurat.text);
+                      print('nilai bap ${selectedBap!.idSurat}');
+                      selectedStaff = allStaff.firstWhere(
+                          (element) => element.id == selectedBap!.idPihak1);
+                      print('nilai staf ${selectedStaff!.id}');
+                      selectedInv = allInvs
+                          .where((element) =>
+                              element.idSurat == selectedBap!.idSurat &&
+                              element.jumlah != 0)
+                          .toList();
+                      print('nilai inv ${selectedInv.length}');
+                      print(
+                          'bap=${selectedBap!.idSurat} -- staff=${selectedStaff!.nama} -- inv=$selectedInv');
+                      setState(() {});
+                      idSurat.text = '';
+                      //////// jika inv yang ada pada surat kosng semua /////////
+                      if (selectedInv.isEmpty) {
+                        isAInv = false;
+                        setState(() {});
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: Text("Inventaris habis"),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("Coba Lagi"))
+                            ],
+                          ),
+                        );
+                      }
+                      ////////////
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          '   Cari BAP',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.pinkAccent),
+                  ),
+                ],
               ),
             ),
+            // Card(
+            //   child: Padding(
+            //     padding: const EdgeInsets.symmetric(horizontal: 10),
+            //     child: BuildInput(
+            //       controllers: idSurat,
+            //       obsText: false,
+            //       kyType: TextInputType.number,
+            //       brd: InputBorder.none,
+            //       hnt: 'Masukkan id surat',
+            //     ),
+            //   ),
+            // ),
             // if (selectedBap == null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: OutlinedButton(
-                onPressed: () {
-                  /// cek jika id yang dimasukkan ada atau tidak
-                  allBap.removeWhere(
-                      (element) => element.idSurat != idSurat.text);
-                  print('masuk fungsi jumlah bap = ${allBap.length}');
-                  if (allBap.isEmpty) {
-                    print('kosong');
-                    showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                              title: Text('Tidak Ditemukan'),
-                              content: Text(
-                                  "Mohon cek lagi id surat yang anda masukkan."),
-                              actions: [
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('Coba lagi'))
-                              ],
-                            ));
-                    idSurat.text = '';
-                    return;
-                  }
-                  //////////
-                  selectedBap = allBap
-                      .firstWhere((element) => element.idSurat == idSurat.text);
-                  print('nilai bap ${selectedBap!.idSurat}');
-                  selectedStaff = allStaff.firstWhere(
-                      (element) => element.id == selectedBap!.idPihak1);
-                  print('nilai staf ${selectedStaff!.id}');
-                  selectedInv = allInvs
-                      .where((element) =>
-                          element.idSurat == selectedBap!.idSurat &&
-                          element.jumlah != 0)
-                      .toList();
-                  print('nilai inv ${selectedInv.length}');
-                  print(
-                      'bap=${selectedBap!.idSurat} -- staff=${selectedStaff!.nama} -- inv=$selectedInv');
-                  setState(() {});
-                  idSurat.text = '';
-                  //////// jika inv yang ada pada surat kosng semua /////////
-                  if (selectedInv.isEmpty) {
-                    isAInv = false;
-                    setState(() {});
-                    showDialog(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: Text("Inventaris habis"),
-                        actions: [
-                          TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text("Coba Lagi"))
-                        ],
-                      ),
-                    );
-                  }
-                  ////////////
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.search,
-                      color: Colors.white,
-                    ),
-                    Text(
-                      '   Cari BAP',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-                style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 5),
+            //   child: OutlinedButton(
+            //     onPressed: () {
+            //       /// cek jika id yang dimasukkan ada atau tidak
+            //       allBap.removeWhere(
+            //           (element) => element.idSurat != idSurat.text);
+            //       print('masuk fungsi jumlah bap = ${allBap.length}');
+            //       if (allBap.isEmpty) {
+            //         print('kosong');
+            //         showDialog(
+            //             context: context,
+            //             builder: (_) => AlertDialog(
+            //                   title: Text('Tidak Ditemukan'),
+            //                   content: Text(
+            //                       "Mohon cek lagi id surat yang anda masukkan."),
+            //                   actions: [
+            //                     TextButton(
+            //                         onPressed: () {
+            //                           Navigator.pop(context);
+            //                         },
+            //                         child: Text('Coba lagi'))
+            //                   ],
+            //                 ));
+            //         idSurat.text = '';
+            //         return;
+            //       }
+            //       //////////
+            //       selectedBap = allBap
+            //           .firstWhere((element) => element.idSurat == idSurat.text);
+            //       print('nilai bap ${selectedBap!.idSurat}');
+            //       selectedStaff = allStaff.firstWhere(
+            //           (element) => element.id == selectedBap!.idPihak1);
+            //       print('nilai staf ${selectedStaff!.id}');
+            //       selectedInv = allInvs
+            //           .where((element) =>
+            //               element.idSurat == selectedBap!.idSurat &&
+            //               element.jumlah != 0)
+            //           .toList();
+            //       print('nilai inv ${selectedInv.length}');
+            //       print(
+            //           'bap=${selectedBap!.idSurat} -- staff=${selectedStaff!.nama} -- inv=$selectedInv');
+            //       setState(() {});
+            //       idSurat.text = '';
+            //       //////// jika inv yang ada pada surat kosng semua /////////
+            //       if (selectedInv.isEmpty) {
+            //         isAInv = false;
+            //         setState(() {});
+            //         showDialog(
+            //           context: context,
+            //           builder: (_) => AlertDialog(
+            //             title: Text("Inventaris habis"),
+            //             actions: [
+            //               TextButton(
+            //                   onPressed: () {
+            //                     Navigator.pop(context);
+            //                   },
+            //                   child: Text("Coba Lagi"))
+            //             ],
+            //           ),
+            //         );
+            //       }
+            //       ////////////
+            //     },
+            //     child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         Icon(
+            //           Icons.search,
+            //           color: Colors.white,
+            //         ),
+            //         Text(
+            //           '   Cari BAP',
+            //           style: TextStyle(color: Colors.white),
+            //         ),
+            //       ],
+            //     ),
+            //     style: OutlinedButton.styleFrom(
+            //         backgroundColor: Colors.pinkAccent),
+            //   ),
+            // ),
             if (isAInv == true)
               Card(
                 child: selectedStaff == null
@@ -283,6 +389,7 @@ class _PindahTanganState extends State<PindahTangan> {
                                             content: BuildInput(
                                               controllers: countToSend,
                                               obsText: false,
+                                              kyType: TextInputType.number,
                                             ),
                                             actions: [
                                               TextButton(
@@ -301,13 +408,15 @@ class _PindahTanganState extends State<PindahTangan> {
 // 1. tambah ke sendToInv -> tabel -> done
 // 2. update sendToInv kirim ke backend sebagai inventory baru -> done
 // 3. update jumlah inventory sebelumnya
+                                                    jumlahBaru = int.parse(
+                                                        countToSend.text);
                                                     int jumlahAwal =
                                                         selectedInv[index]
                                                             .jumlah;
-                                                    int dikurangi = int.parse(
+                                                    dikurangi = int.parse(
                                                         countToSend.text);
                                                     int hasil =
-                                                        jumlahAwal - dikurangi;
+                                                        jumlahAwal - dikurangi!;
                                                     updateJumlah = hasil;
                                                     print(
                                                         'jumlah inventory setelah dikurangi $updateJumlah');
@@ -713,8 +822,12 @@ class _PindahTanganState extends State<PindahTangan> {
                       var ress = await http.Response.fromStream(responses);
 
                       if (responses.statusCode == 200) {
+                        // ignore: unnecessary_null_comparison
+                        String newJumlah = jumlahBaru.toString() == null
+                            ? '1'
+                            : jumlahBaru.toString();
                         print(
-                            'nilai yang akan di update $idSuratNew, ${selectedStaff2!.id}, ${data.idInventory}, ${data.nama},  ${data.merk},  ${countToSend.text},  ${data.keterangan},  ${data.kategory},  ${data.model},  ${data.sn},  ${data.subKategory},  ${data.pathPhoto}');
+                            'nilai yang akan di update $idSuratNew, ${selectedStaff2!.id}, ${data.idInventory}, ${data.nama},  ${data.merk},  $newJumlah,  ${data.keterangan},  ${data.kategory},  ${data.model},  ${data.sn},  ${data.subKategory},  ${data.pathPhoto}');
                         var resp = jsonDecode(ress.body);
                         var idss = resp['data']['id'];
                         var response = await http.post(
@@ -730,6 +843,7 @@ class _PindahTanganState extends State<PindahTangan> {
                                   ? '1'
                                   : countToSend.text,
                               'jumlah': 'null',
+                              'jumlah_pinjam': 'null',
                               'keterangan': data.keterangan,
                               'kategory': data.kategory,
                               'model': data.model,
@@ -747,10 +861,17 @@ class _PindahTanganState extends State<PindahTangan> {
                             idss.toString(),
                             idSuratNew!,
                             idSuratNew!,
+                            idSuratNew!,
                             selectedStaff!.id!,
                             selectedStaff2!.id!,
                             countToSend.toString(),
                             'pdf');
+                        LogModel.sendLog(
+                          'id',
+                          'add pnd',
+                          idSuratNew!,
+                          'anda mambuat bap untuk pindah tangan dengan id $idSuratNew!',
+                        );
                         Invetory.hapus(data.id);
                         setState(() {});
                         Navigator.pushReplacement(context,

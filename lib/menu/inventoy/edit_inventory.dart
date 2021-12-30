@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:sipisat/component/textfield.dart';
 import 'package:sipisat/models/inventory_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:sipisat/models/log_models.dart';
 
 import '../../common.dart';
 
@@ -349,6 +350,12 @@ class _EditInventoryState extends State<EditInventory> {
                               photo, () {
                             setState(() {});
                           });
+                          LogModel.sendLog(
+                            'id',
+                            'edit inv',
+                            invId.toString(),
+                            'anda mengedit data inv dengan id ${invId.toString()}',
+                          );
                           Navigator.pop(context);
                         } else {
                           print(

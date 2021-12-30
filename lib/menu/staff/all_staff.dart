@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:sipisat/component/textfield.dart';
+import 'package:sipisat/models/log_models.dart';
 import 'package:sipisat/models/staff_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -195,6 +196,11 @@ class _AllStaffState extends State<AllStaff> {
                                                                         .body);
                                                             print(
                                                                 "berhasil menghapus data staff -> $res");
+                                                            LogModel.sendLog(
+                                                                'id',
+                                                                'delete staf',
+                                                                'null',
+                                                                'anda menghapus ${staff[index].nama} dari data staf');
                                                             setState(() {
                                                               staff.removeAt(
                                                                   index);
@@ -429,6 +435,12 @@ class _EditStaffState extends State<EditStaff> {
                       widget.staff[widget.index].jabatan = _jabatan.text;
                       widget.staff[widget.index].alamat = _alamat.text;
                     });
+                    LogModel.sendLog(
+                      'id',
+                      'edit staf',
+                      _name.text,
+                      'anda mengedit data pengguna ${_name.text}',
+                    );
                     Navigator.pop(context);
                   } else {
                     print('gagal mengupdate data staff');

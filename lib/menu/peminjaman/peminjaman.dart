@@ -12,8 +12,9 @@ import 'package:sipisat/generate_tabel_pnd.dart';
 import 'package:sipisat/menu/bap/all_bap.dart';
 import 'package:sipisat/models/bap_model.dart';
 import 'package:sipisat/models/inventory_model.dart';
+import 'package:sipisat/models/log_models.dart';
 import 'package:sipisat/models/staff_model.dart';
-import 'package:sipisat/preview_pdf.dart';
+// import 'package:sipisat/preview_pdf.dart';
 import 'package:http/http.dart' as http;
 
 class Peminjaman extends StatefulWidget {
@@ -58,6 +59,7 @@ class _PeminjamanState extends State<Peminjaman> {
 
   File? pdf;
 
+  int? hasil;
   // tanggal peminjaman
   DateTime selectedDate1 = DateTime.now();
   DateTime selectedDate2 = DateTime.now();
@@ -154,7 +156,9 @@ class _PeminjamanState extends State<Peminjaman> {
                                   : Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text('Penanggug jawab'),
+                                        Text(
+                                          'Penanggug jawab',
+                                        ),
                                         Divider(),
                                         Row(
                                           mainAxisAlignment:
@@ -223,7 +227,8 @@ class _PeminjamanState extends State<Peminjaman> {
                             borderRadius: BorderRadius.circular(4)),
                         child: !isPeminjam
                             ? Center(
-                                child: Text("Belum ada data peminjam"),
+                                child: Text("Belum ada data peminjam",
+                                    style: TextStyle(color: Colors.grey)),
                               )
                             : Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -453,13 +458,13 @@ class _PeminjamanState extends State<Peminjaman> {
                                                             newJumlah =
                                                                 inputJumlah
                                                                     .text;
-                                                            int hasil = selInv!
+                                                            hasil = selInv!
                                                                     .jumlah -
                                                                 int.parse(
                                                                     inputJumlah
                                                                         .text);
                                                             selInv!.jumlah =
-                                                                hasil;
+                                                                hasil!;
                                                             invToSend.add(
                                                                 srch.firstWhere(
                                                                     (element) =>
@@ -470,7 +475,8 @@ class _PeminjamanState extends State<Peminjaman> {
                                                             tabel = await TblBarangPnd
                                                                 .dataBarang(
                                                                     invToSend,
-                                                                    hasil
+                                                                    inputJumlah
+                                                                        .text
                                                                         .toString(),
                                                                     'lengkap',
                                                                     'baik');
@@ -822,6 +828,7 @@ class _PeminjamanState extends State<Peminjaman> {
                               idss.toString(),
                               idSurat,
                               idSurat,
+                              idSurat,
                               phk1!.id.toString(),
                               nama.text,
                               invToSend.length.toString(),
@@ -838,8 +845,9 @@ class _PeminjamanState extends State<Peminjaman> {
                                   'id_inventory': data.idInventory,
                                   'nama': data.nama,
                                   'merk': data.merk,
-                                  'new_jumlah': '1',
-                                  // newJumlah == null ? '1' : newJumlah,
+                                  'new_jumlah': inputJumlah.text == ''
+                                      ? '1'
+                                      : inputJumlah.text,
                                   'jumlah': 'null',
                                   'keterangan': data.keterangan,
                                   'kategory': data.kategory,
@@ -850,19 +858,25 @@ class _PeminjamanState extends State<Peminjaman> {
                                 }));
                             if (response.statusCode == 200) {
                               print('berhasil update inventaris untuk pinjam');
-                              var res = await http.post(
+                              await http.post(
                                   Uri.parse(CommonUser.baseUrl +
                                       // /edit_inv_surat_pnd/
                                       '/edit_inv_surat_pjm/${data.id}'),
                                   body: ({
-                                    'jumlah_pinjam': data.jumlah.toString(),
+                                    'jumlah_pinjam': inputJumlah.text,
+                                    'jumlah': hasil.toString()
                                   }));
                             } else {
                               print(
                                   'gagal mengirim data ${response.statusCode}');
                             }
                           }
-
+                          LogModel.sendLog(
+                            'id',
+                            'add pjm',
+                            idSurat,
+                            'anda membuat bap untuk peminjaman inventaris dengan id $idSurat',
+                          );
                           Navigator.pushReplacement(context,
                               MaterialPageRoute(builder: (_) => AllBAP()));
                           print(

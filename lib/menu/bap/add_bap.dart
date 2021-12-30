@@ -14,6 +14,7 @@ import 'package:sipisat/generate_tabel.dart';
 import 'package:sipisat/menu/bap/all_bap.dart';
 import 'package:sipisat/models/bap_model.dart';
 import 'package:sipisat/models/inventory_model.dart';
+import 'package:sipisat/models/log_models.dart';
 import 'package:sipisat/models/staff_model.dart';
 
 class AddBAP extends StatefulWidget {
@@ -605,10 +606,17 @@ class _AddBAPState extends State<AddBAP> {
                                           idss.toString(),
                                           idSurat,
                                           idSurat,
+                                          idSurat,
                                           phk1!.id.toString(),
                                           phk2!.id.toString(),
                                           sendInv!.length.toString(),
                                           'pdf');
+                                      LogModel.sendLog(
+                                        'id',
+                                        'add bap',
+                                        idSurat,
+                                        'anda membuat bap baru dengan id $idSurat',
+                                      );
                                       Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
@@ -619,18 +627,11 @@ class _AddBAPState extends State<AddBAP> {
                                       print('gagal mengirim file');
                                     }
                                   } else {
-                                    // var rr =
-                                    //     jsonDecode(resp.statusCode.toString());
                                     print(
                                         'gagal membuat data inv baru untuk bap ');
                                     return;
                                   }
-                                }
-
-                                ///
-                                //   )
-                                // },
-                                ,
+                                },
                                 child: Text("Selesai"))
                           ],
                         )

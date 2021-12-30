@@ -35,8 +35,9 @@ class UserModel {
               0,
               UserModel(
                   id: dt['id'].toString(),
-                  password: dt['password'],
-                  nama: dt['nama'],
+                  password:
+                      dt['password'] == null ? 'password' : dt['password'],
+                  nama: dt['name'],
                   kontak: dt['kontak'],
                   jabatan: dt['jabatan'],
                   alamat: dt['alamat']));

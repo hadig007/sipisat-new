@@ -50,4 +50,27 @@ NEXT
 1. buat tabel untuk peminjaman ✔️
 2. input tanggal peminjaman dan pengmbalian ✔️
 3. buat pdf untuk peminjaman ✔️
-4. buat fitur kirim data di peminjaman ke backend
+4. buat fitur kirim data di peminjaman ke backend ✔️
+
+1. buat model log
+2. buat view log
+
+
+LOG
+1. staf ✔️
+2. user ✔️
+3. inventory ✔️
+4. bap✔️
+        1. bap✔️
+        2. pindah tangan✔️
+        3. pinjam✔️
+
+1. perbaiki multi login
+
+
+PINDAH TANGAN
+1. pindah tangan 1 inv sudah berhasil
+
+BUG 🪲
+1. setelah pembuatan bap. mesti refresh apk baru bisa buat pindah tangan
+2. pindah tangan tidak berhasil membuat inventory baru

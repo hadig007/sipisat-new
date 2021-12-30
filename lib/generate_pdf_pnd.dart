@@ -99,8 +99,8 @@ class PdfApiPnd {
     final pdf = Document();
     final imagejg =
         (await rootBundle.load('assets/images/logo.jpg')).buffer.asUint8List();
-    final ttd =
-        (await rootBundle.load('assets/images/ttd.png')).buffer.asUint8List();
+    // final ttd =
+    //     (await rootBundle.load('assets/images/ttd.png')).buffer.asUint8List();
 
     pdf.addPage(
       Page(

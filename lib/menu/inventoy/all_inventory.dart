@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sipisat/auth/login.dart';
 import 'package:sipisat/common.dart';
+import 'package:sipisat/menu/bap/all_bap.dart';
 import 'package:sipisat/menu/inventoy/add_inventory.dart';
 import 'package:sipisat/models/inventory_model.dart';
+import 'package:sipisat/models/log_models.dart';
 
 import 'detail_inventory.dart';
 import 'edit_inventory.dart';
@@ -14,76 +20,200 @@ class AllInventory extends StatefulWidget {
   _AllInventoryState createState() => _AllInventoryState();
 }
 
+enum InvStatus {
+  Baru,
+  Bap,
+  Pindah,
+  Pinjam,
+}
+
 class _AllInventoryState extends State<AllInventory> {
-  var selected = 'Semua';
+  // var selected = 'Semua';
+  var selected;
   var isLoading = true;
-  List<Invetory> inventory = Invetory.allInv;
   var isElk = false;
-  List<Invetory> inventoryEl = [];
-  List<Invetory> inventoryRt = [];
-  List<Invetory> inventoryOt = [];
-  List<Invetory> render = [];
+  var isUser = false;
+  List<Invetory> inventory = [];
+  List<Invetory> allInv = [];
+
+  List<Invetory> newInv = [];
+  List<Invetory> bapInv = [];
+  List<Invetory> pndInv = [];
+  List<Invetory> pjmInv = [];
+
+  List<Invetory> allCat = [];
+  List<Invetory> elCat = [];
+  List<Invetory> rtCat = [];
+  List<Invetory> laCat = [];
+
+  List<Invetory> statRender = [];
+  List<Invetory> invToRender = [];
+  List<Invetory> catToRender = [];
 
   ambilData() async {
     if (inventory.isEmpty) {
-      Invetory.ambilData();
-      inventory =
-          inventory.where((element) => element.status == 'baru masuk').toList();
+      setState(() {
+        isLoading = true;
+      });
+      //////////
+      var response =
+          await http.get(Uri.parse(CommonUser.baseUrl + '/get_invs'));
+      if (response.statusCode == 200) {
+        List datas = jsonDecode(response.body);
+        for (var data in datas) {
+          if (inventory.length >= datas.length) {
+            return;
+          } else {
+            inventory.insert(
+              0,
+              Invetory(
+                  id: data['id'].toString(),
+                  idSurat: data['id_surat'] == null ? 'null' : data['id_surat'],
+                  idInventory: data['id_inventory'],
+                  status: data['status'],
+                  nama: data['nama'],
+                  merk: data['merk'],
+                  jumlah: data['new_jumlah'] == 'null'
+                      ? int.parse(data['jumlah'])
+                      : int.parse(data['new_jumlah']),
+                  keterangan: data['keterangan'],
+                  kategory: data['kategory'],
+                  pathPhoto: data['path_photo'],
+                  model: data['model'],
+                  sn: data['sn'],
+                  subKategory: data['sub_kategory']),
+            );
+          }
+        }
+      }
+      allInv = inventory;
+      newInv =
+          allInv.where((element) => element.status == 'baru masuk').toList();
+      bapInv = allInv.where((element) => element.status == 'bap').toList();
+      pndInv =
+          allInv.where((element) => element.status == 'pindah tangan').toList();
+      pjmInv = allInv.where((element) => element.status == 'pinjam').toList();
+
+      statRender = newInv;
+
+      /////////////////////////
     }
-    inventory =
-        inventory.where((element) => element.status == 'baru masuk').toList();
-    inventoryEl =
-        inventory.where((element) => element.kategory == 'Elektronik').toList();
-    inventoryRt = inventory
-        .where((element) => element.kategory == 'Rumah Tangga')
-        .toList();
-    inventoryOt =
-        inventory.where((element) => element.kategory == 'Lainnya').toList();
-    print('berhasil mengambil data inventory \n $inventory');
-    render = inventory;
+    ///////////
+    SharedPreferences sh = await SharedPreferences.getInstance();
+    final level = sh.getString('level');
+    print("$isUser, $level");
+    if (level == 'user') {
+      setState(() {
+        isUser = true;
+      });
+    }
     setState(() {
       isLoading = false;
     });
   }
 
+  cekToken() async {
+    SharedPreferences sh = await SharedPreferences.getInstance();
+    final id = sh.getString('id');
+    print('allinv========================================== init $id');
+    if (id == null) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => LoginPage()));
+    }
+    setState(() {});
+  }
+
   @override
   void initState() {
     ambilData();
-    setState(() {});
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    setState(() {});
     return Scaffold(
-      floatingActionButton: InkWell(
-          onTap: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => AddInventory()));
-          },
-          child: Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  color: Colors.pinkAccent),
-              child: Icon(
-                Icons.add,
-                color: Colors.white,
-              ))),
+      floatingActionButton: isUser == false
+          ? InkWell(
+              onTap: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => AddInventory()));
+              },
+              child: Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.pinkAccent),
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  )))
+          : SizedBox(),
       backgroundColor: Colors.lightBlue.shade300,
       appBar: AppBar(
         title: Text('Semua Inventaris'),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.lightBlue.shade400,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        leading: isUser == false
+            ? IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            : SizedBox(),
+        actions: [
+          if (isUser == true)
+            IconButton(
+                onPressed: () async {
+                  SharedPreferences sh = await SharedPreferences.getInstance();
+                  sh.clear();
+                  cekToken();
+                },
+                icon: Icon(Icons.logout)),
+          if (isUser == false)
+            PopupMenuButton(
+                onSelected: (InvStatus status) {
+                  print(status);
+                  if (status == InvStatus.Baru) {
+                    statRender = newInv;
+                  }
+                  if (status == InvStatus.Bap) {
+                    statRender = bapInv;
+                  }
+                  if (status == InvStatus.Pindah) {
+                    statRender = pndInv;
+                  }
+                  if (status == InvStatus.Pinjam) {
+                    statRender = pjmInv;
+                  }
+                  setState(() {
+                    print(
+                        'akan merender inv dengan status $status \n $statRender');
+                  });
+                },
+                itemBuilder: (_) => [
+                      PopupMenuItem(
+                        child: Text('Baru'),
+                        value: InvStatus.Baru,
+                      ),
+                      PopupMenuItem(
+                        child: Text('BAP'),
+                        value: InvStatus.Bap,
+                      ),
+                      PopupMenuItem(
+                        child: Text('Pindah Tangan'),
+                        value: InvStatus.Pindah,
+                      ),
+                      PopupMenuItem(
+                        child: Text('Pinjam'),
+                        value: InvStatus.Pinjam,
+                      ),
+                    ])
+        ],
       ),
-      body: isLoading
+      body: isLoading == true
           ? Center(
               child: CircularProgressIndicator(
                 color: Colors.white,
@@ -92,8 +222,6 @@ class _AllInventoryState extends State<AllInventory> {
           : RefreshIndicator(
               onRefresh: () async {
                 ambilData();
-                selected = 'Semua';
-                render = inventory;
                 setState(() {});
               },
               child: Column(
@@ -113,7 +241,9 @@ class _AllInventoryState extends State<AllInventory> {
                                 onTap: () {
                                   setState(() {
                                     selected = 'Semua';
-                                    render = inventory;
+                                    // allInv = statRender;
+                                    invToRender = allCat;
+                                    // catToRender = statRender;
                                   });
                                 },
                                 child: Text(
@@ -140,7 +270,7 @@ class _AllInventoryState extends State<AllInventory> {
                                 onTap: () {
                                   setState(() {
                                     selected = "Elektronik";
-                                    render = inventoryEl;
+                                    invToRender = elCat;
                                   });
                                 },
                                 child: Text(
@@ -169,7 +299,8 @@ class _AllInventoryState extends State<AllInventory> {
                                 onTap: () {
                                   setState(() {
                                     selected = "Rumah Tangga";
-                                    render = inventoryRt;
+                                    invToRender = rtCat;
+                                    // catToRender = statRender;
                                   });
                                 },
                                 child: Text(
@@ -198,7 +329,10 @@ class _AllInventoryState extends State<AllInventory> {
                                 onTap: () {
                                   setState(() {
                                     selected = "Lainnya";
-                                    render = inventoryOt;
+                                    invToRender = laCat;
+                                    // catToRender = statRender;
+                                    print(
+                                        'akan merender inv dengan status $statRender -> kategory $selected');
                                   });
                                 },
                                 child: Text(
@@ -222,20 +356,6 @@ class _AllInventoryState extends State<AllInventory> {
                       ),
                     ),
                   ),
-                  if (inventory.isEmpty)
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.info),
-                            Text(' Belum ada data inventaris.')
-                          ],
-                        ),
-                      ),
-                    ),
                   Expanded(
                     child: GridView.builder(
                       padding: EdgeInsets.all(20),
@@ -246,6 +366,23 @@ class _AllInventoryState extends State<AllInventory> {
                           mainAxisSpacing: 20,
                           childAspectRatio: 3 / 2),
                       itemBuilder: (context, index) {
+                        //////////////////
+                        allCat = statRender;
+                        elCat = statRender
+                            .where(
+                                (element) => element.kategory == 'Elektronik')
+                            .toList();
+                        rtCat = statRender
+                            .where(
+                                (element) => element.kategory == 'Rumah Tangga')
+                            .toList();
+                        laCat = statRender
+                            .where((element) => element.kategory == 'Lainnya')
+                            .toList();
+
+                        // invToRender = statRender;
+                        // invToRender = statRender;
+                        invToRender = allCat;
                         return InkWell(
                           onTap: () {
                             Navigator.push(
@@ -253,114 +390,127 @@ class _AllInventoryState extends State<AllInventory> {
                                 MaterialPageRoute(
                                     builder: (_) => DetailInventory(
                                           index: index,
-                                          render: render,
+                                          render: invToRender,
                                         )));
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: GridTile(
-                                footer: GridTileBar(
-                                  backgroundColor: Colors.black54,
-                                  title: Text(
-                                    render[index].nama.toUpperCase(),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  leading: IconButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => EditInventory(
-                                            index: index,
-                                            render: render,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    icon: Icon(Icons.edit),
-                                    color: Colors.lightBlue,
-                                  ),
-                                  trailing: IconButton(
-                                    onPressed: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (_) => AlertDialog(
-                                                title: Text('Yakin'),
-                                                content: Text(
-                                                    'Apakah anda yakin untuk menghapus Inventaris ini.'),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text(
-                                                      'Batal',
-                                                      style: TextStyle(
-                                                          color: Colors.red),
-                                                    ),
-                                                  ),
-                                                  TextButton(
-                                                      onPressed: () async {
-                                                        print(
-                                                            'akan menghapus inventaris dengan id ${render[index].id}');
-                                                        var response = await http.post(
-                                                            Uri.parse(CommonUser
-                                                                    .baseUrl +
-                                                                '/delete_inv/${render[index].id}'));
-                                                        if (response
-                                                                .statusCode ==
-                                                            200) {
-                                                          inventory.removeWhere(
-                                                              (element) =>
-                                                                  element.id ==
-                                                                  render[index]
-                                                                      .id);
-                                                          setState(() {});
-                                                          print(
-                                                              'berhasil hapus photo');
+                              footer: GridTileBar(
+                                backgroundColor: Colors.black54,
+                                title: Text(
+                                  invToRender[index].nama.toUpperCase(),
+                                  textAlign: TextAlign.center,
+                                ),
+                                leading: isUser == false
+                                    ? IconButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => EditInventory(
+                                                index: index,
+                                                render: invToRender,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        icon: Icon(Icons.edit),
+                                        color: Colors.lightBlue,
+                                      )
+                                    : SizedBox(),
+                                trailing: isUser == false
+                                    ? IconButton(
+                                        onPressed: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (_) => AlertDialog(
+                                                    title: Text('Yakin'),
+                                                    content: Text(
+                                                        'Apakah anda yakin untuk menghapus Inventaris ini.'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () {
                                                           Navigator.pop(
                                                               context);
-                                                          ScaffoldMessenger.of(
-                                                                  context)
-                                                              .showSnackBar(SnackBar(
-                                                                  content: Text(
-                                                                      'Berhasil Menghapus Inventaris')));
-                                                          setState(() {
-                                                            inventory.removeAt(
-                                                                index);
-                                                            render.removeAt(
-                                                                index);
-                                                          });
-                                                        }
-                                                      },
-                                                      child: Text(
-                                                        'Yakin',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.green),
-                                                      ))
-                                                ],
-                                              ));
-                                    },
-                                    icon: Icon(Icons.delete),
-                                    color: Colors.red,
-                                  ),
-                                ),
-                                child: Image.network(
-                                  render[index].pathPhoto,
-                                  fit: BoxFit.cover,
-                                )
-                                // Image(
-                                //     fit: BoxFit.cover,
-                                //     image: NetworkImage(
-                                //       // 'https://selular.id/wp-content/uploads/2021/05/m1-mac-mini-angle-100867263-orig-5.jpg'
-                                //       render[index].pathPhoto,
-                                //     )),
-                                ),
+                                                        },
+                                                        child: Text(
+                                                          'Batal',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.red),
+                                                        ),
+                                                      ),
+                                                      TextButton(
+                                                          onPressed: () async {
+                                                            print(
+                                                                'akan menghapus inventaris dengan id ${invToRender[index].id}');
+                                                            var response = await http
+                                                                .post(Uri.parse(
+                                                                    CommonUser
+                                                                            .baseUrl +
+                                                                        '/delete_inv/${invToRender[index].id}'));
+                                                            if (response
+                                                                    .statusCode ==
+                                                                200) {
+                                                              LogModel.sendLog(
+                                                                'id',
+                                                                'delete inv',
+                                                                '${invToRender[index].idInventory}',
+                                                                'anda menghapus invetaris dengan id ${invToRender[index].idInventory}',
+                                                              );
+                                                              inventory.removeWhere(
+                                                                  (element) =>
+                                                                      element
+                                                                          .id ==
+                                                                      invToRender[
+                                                                              index]
+                                                                          .id);
+                                                              setState(() {});
+                                                              print(
+                                                                  'berhasil hapus photo');
+                                                              Navigator.pop(
+                                                                  context);
+                                                              ScaffoldMessenger
+                                                                      .of(
+                                                                          context)
+                                                                  .showSnackBar(
+                                                                      SnackBar(
+                                                                          content:
+                                                                              Text('Berhasil Menghapus Inventaris')));
+                                                              setState(() {
+                                                                inventory
+                                                                    .removeAt(
+                                                                        index);
+                                                                invToRender
+                                                                    .removeAt(
+                                                                        index);
+                                                              });
+                                                            }
+                                                          },
+                                                          child: Text(
+                                                            'Yakin',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .green),
+                                                          ))
+                                                    ],
+                                                  ));
+                                        },
+                                        icon: Icon(Icons.delete),
+                                        color: Colors.red,
+                                      )
+                                    : SizedBox(),
+                              ),
+                              child: Image.network(
+                                invToRender[index].pathPhoto,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         );
                       },
-                      itemCount: render.length,
+                      itemCount: invToRender.length,
                     ),
                   )
                 ],
@@ -380,7 +530,7 @@ class BuildGaris extends StatelessWidget {
     return Container(
       height: 3,
       width: MediaQuery.of(context).size.width * .12,
-      color: Colors.white,
+      color: Colors.lightBlue.shade100,
     );
   }
 }

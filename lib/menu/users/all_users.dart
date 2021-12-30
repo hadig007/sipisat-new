@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:sipisat/common.dart';
 import 'package:sipisat/component/textfield.dart';
 import 'package:sipisat/menu/users/add_user.dart';
+import 'package:sipisat/models/log_models.dart';
 import 'package:sipisat/models/users_model.dart';
 
 class AllUser extends StatefulWidget {
@@ -21,7 +22,7 @@ class _AllUserState extends State<AllUser> {
   var isLoading = true;
   var num = 1;
   void ambilData() async {
-    users = await UserModel.getData();
+    users = UserModel.allUser;
     if (users.isNotEmpty) {
       setState(() {
         isLoading = false;
@@ -300,6 +301,11 @@ class _AllUserState extends State<AllUser> {
                                                                 () {
                                                               setState(() {});
                                                             });
+                                                            LogModel.sendLog(
+                                                                'id',
+                                                                'edit user',
+                                                                'null',
+                                                                'anda mengedit data pengguna ${_name.text}');
                                                             Navigator.pop(
                                                                 context);
                                                           } else {
@@ -364,7 +370,37 @@ class _AllUserState extends State<AllUser> {
                                                           ),
                                                         ),
                                                         TextButton(
-                                                          onPressed: () {
+                                                          onPressed: () async {
+                                                            print(
+                                                                'akan mengapus user dengan id -> ${users[index].id}');
+                                                            var response = await http
+                                                                .get(Uri.parse(
+                                                                    CommonUser
+                                                                            .baseUrl +
+                                                                        '/delete_user/${users[index].id}'));
+                                                            if (response
+                                                                    .statusCode ==
+                                                                200) {
+                                                              var res =
+                                                                  jsonDecode(
+                                                                      response
+                                                                          .body);
+                                                              print(
+                                                                  'berhasil menghapus data user -> $res');
+                                                              LogModel.sendLog(
+                                                                'id',
+                                                                'delete user',
+                                                                'null',
+                                                                'anda menghapus ${users[index].nama} dari data pengguna',
+                                                              );
+                                                              setState(() {
+                                                                users.removeAt(
+                                                                    index);
+                                                              });
+                                                            } else {
+                                                              print(
+                                                                  'gagal menghapus data user');
+                                                            }
                                                             Navigator.pop(
                                                                 context, false);
                                                           },
@@ -377,23 +413,6 @@ class _AllUserState extends State<AllUser> {
                                                         ),
                                                       ],
                                                     ));
-                                            print(
-                                                'akan mengapus user dengan id -> ${users[index].id}');
-                                            var response = await http.get(
-                                                Uri.parse(CommonUser.baseUrl +
-                                                    '/delete_user/${users[index].id}'));
-                                            if (response.statusCode == 200) {
-                                              var res =
-                                                  jsonDecode(response.body);
-                                              print(
-                                                  'berhasil menghapus data user -> $res');
-                                              setState(() {
-                                                users.removeAt(index);
-                                              });
-                                            } else {
-                                              print(
-                                                  'gagal menghapus data user');
-                                            }
                                           },
                                           icon: Icon(
                                             Icons.delete,
