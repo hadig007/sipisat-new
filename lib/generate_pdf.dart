@@ -217,7 +217,7 @@ class PdfApi {
                   Padding(
                     padding: EdgeInsets.only(left: 15, bottom: 10),
                     child: Text(
-                        "Dalam hal ini disebut sebagai : _______ pihak kedua",
+                        "Dalam hal ini disebut sebagai : _______ pihak pertama",
                         style: TextStyle(
                           fontSize: 10,
                         )),

@@ -156,66 +156,73 @@ class _AllUserState extends State<AllUser> {
                                               context: context,
                                               builder: (_) => AlertDialog(
                                                 title: Text("Edit Pengguna"),
-                                                content: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .stretch,
-                                                      children: [
-                                                        BuildInput(
-                                                          keyName: 'Nama',
-                                                          controllers: _name,
-                                                          actType:
-                                                              TextInputAction
-                                                                  .next,
-                                                          obsText: false,
-                                                        ),
-                                                        BuildInput(
-                                                          keyName: 'Kontak',
-                                                          controllers: _kontak,
-                                                          kyType: TextInputType
-                                                              .number,
-                                                          actType:
-                                                              TextInputAction
-                                                                  .next,
-                                                          obsText: false,
-                                                        ),
-                                                        BuildInput(
-                                                          keyName: 'Jabatan',
-                                                          controllers: _jabatan,
-                                                          actType:
-                                                              TextInputAction
-                                                                  .next,
-                                                          obsText: false,
-                                                        ),
-                                                        BuildInput(
-                                                          keyName: 'Alamat',
-                                                          controllers: _alamat,
-                                                          actType:
-                                                              TextInputAction
-                                                                  .next,
-                                                          obsText: false,
-                                                        ),
-                                                        BuildInput(
-                                                          keyName: 'Sandi Baru',
-                                                          controllers:
-                                                              _password,
-                                                          actType:
-                                                              TextInputAction
-                                                                  .done,
-                                                          obsText: true,
-                                                        ),
-                                                        SizedBox(
-                                                          height: 10,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                content: SingleChildScrollView(
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .stretch,
+                                                        children: [
+                                                          BuildInput(
+                                                            keyName: 'Nama',
+                                                            controllers: _name,
+                                                            actType:
+                                                                TextInputAction
+                                                                    .next,
+                                                            obsText: false,
+                                                          ),
+                                                          BuildInput(
+                                                            keyName: 'Kontak',
+                                                            controllers:
+                                                                _kontak,
+                                                            kyType:
+                                                                TextInputType
+                                                                    .number,
+                                                            actType:
+                                                                TextInputAction
+                                                                    .next,
+                                                            obsText: false,
+                                                          ),
+                                                          BuildInput(
+                                                            keyName: 'Jabatan',
+                                                            controllers:
+                                                                _jabatan,
+                                                            actType:
+                                                                TextInputAction
+                                                                    .next,
+                                                            obsText: false,
+                                                          ),
+                                                          BuildInput(
+                                                            keyName: 'Alamat',
+                                                            controllers:
+                                                                _alamat,
+                                                            actType:
+                                                                TextInputAction
+                                                                    .next,
+                                                            obsText: false,
+                                                          ),
+                                                          BuildInput(
+                                                            keyName:
+                                                                'Sandi Baru',
+                                                            controllers:
+                                                                _password,
+                                                            actType:
+                                                                TextInputAction
+                                                                    .done,
+                                                            obsText: true,
+                                                          ),
+                                                          SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                                 actions: [
                                                   TextButton(
@@ -309,27 +316,16 @@ class _AllUserState extends State<AllUser> {
                                                             Navigator.pop(
                                                                 context);
                                                           } else {
+                                                            Navigator.pop(
+                                                                context);
                                                             print(
                                                                 'gagal update data user ${response.statusCode} - ${users[index].id}');
-                                                            showDialog(
-                                                                context:
-                                                                    context,
-                                                                builder: (_) =>
-                                                                    AlertDialog(
-                                                                      title: Text(
-                                                                          "Gagal"),
-                                                                      content: Text(
-                                                                          "Gagal mengirim data, silahkan coba lagi nanti"),
-                                                                      actions: [
-                                                                        TextButton(
-                                                                            onPressed:
-                                                                                () {
-                                                                              Navigator.pop(context);
-                                                                            },
-                                                                            child:
-                                                                                Text('Oke'))
-                                                                      ],
-                                                                    ));
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                                    SnackBar(
+                                                                        content:
+                                                                            Text("Gagal edit user, coba lagi nanti")));
                                                           }
                                                         }
                                                         //////

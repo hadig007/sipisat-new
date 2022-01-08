@@ -287,7 +287,8 @@ class _AddInventoryState extends State<AddInventory> {
                                 'nama': _name.text,
                                 'merk': _merk.text,
                                 'jumlah': _jumlah.text,
-                                'new_jumlah': 'null',
+                                'new_jumlah': '0',
+                                'jumlah_pinjam': '0',
                                 'keterangan': _keterangan.text,
                                 'model':
                                     _model.text.isEmpty ? 'null' : _model.text,
@@ -316,21 +317,29 @@ class _AddInventoryState extends State<AddInventory> {
                                   ),
                                 );
                                 Invetory.tambahInv(
-                                    idss.toString(),
-                                    'null',
-                                    'baru masuk',
-                                    invId.toString(),
-                                    _name.text,
-                                    _merk.text,
-                                    _sn.text,
-                                    _model.text,
-                                    int.parse(_jumlah.text),
-                                    _keterangan.text,
-                                    newValue!,
-                                    newScValue == null ? 'null' : newScValue!,
-                                    photo, () {
-                                  setState(() {});
-                                });
+                                  idss.toString(), // String id,
+                                  idss.toString(), // String idSurat,
+                                  'baru masuk', // String status
+                                  'null', // String idPemilik
+                                  invId.toString(), // String idInventory
+                                  _name.text, // String nama
+                                  _merk.text, // String merk
+                                  _sn.text, // String Sn
+                                  _model.text, // String model
+                                  int.parse(_jumlah.text), // int jumlah
+                                  0, // int new_jumlah
+                                  0, // int jumlah_pinjam
+                                  'null', //String id awal
+                                  _keterangan.text, // String keterangan
+                                  newValue!, // String Kategory
+                                  newScValue == null
+                                      ? 'null'
+                                      : newScValue!, // String subKategory
+                                  photo, // String pathPhoto
+                                  () {
+                                    setState(() {});
+                                  },
+                                );
                                 setState(() {});
                                 LogModel.sendLog(
                                   'id',
@@ -338,6 +347,7 @@ class _AddInventoryState extends State<AddInventory> {
                                   '$invId',
                                   'anda menambah inventory baru ${_name.text} dengan id ${invId.toString()}',
                                 );
+                                Invetory.ambilData();
                                 Navigator.pop(context);
                               } else {
                                 print(

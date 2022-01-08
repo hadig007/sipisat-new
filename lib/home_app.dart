@@ -70,7 +70,7 @@ class _HomeAppState extends State<HomeApp> {
     BuildMenu(
         text: 'Pinjam',
         pathIcon: 'assets/icons/peminjaman.png',
-        dest: Peminjaman()),
+        dest: Pinjam()),
     BuildMenu(
       text: 'Log',
       pathIcon: 'assets/icons/log.png',
@@ -122,9 +122,7 @@ class _HomeAppState extends State<HomeApp> {
       dest: Log(),
     ),
     BuildMenu(
-        text: 'Pinjam',
-        pathIcon: 'assets/icons/peminjaman.png',
-        dest: Peminjaman())
+        text: 'Pinjam', pathIcon: 'assets/icons/peminjaman.png', dest: Pinjam())
   ];
 
   /////////
@@ -143,6 +141,7 @@ class _HomeAppState extends State<HomeApp> {
     List<UserModel> users = await UserModel.getData();
     print('semua data inv $users');
     LogModel.ambilData();
+    Invetory.invCount();
     if (stafs.length != 0 ||
         invs.length != 0 ||
         baps.length != 0 ||
@@ -184,7 +183,7 @@ class _HomeAppState extends State<HomeApp> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text('SIPISAT'),
+        title: Text('SIVISAT'),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.lightBlue.shade400,
@@ -192,6 +191,7 @@ class _HomeAppState extends State<HomeApp> {
           // tombol logout
           IconButton(
             onPressed: () async {
+              // SystemChannels.platform.invokeMethod('SystemNavigator.pop'); // to close app
               SharedPreferences sh = await SharedPreferences.getInstance();
               sh.clear();
               cekToken();

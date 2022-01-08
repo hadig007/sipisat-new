@@ -92,7 +92,16 @@ class _LoginPageState extends State<LoginPage> {
                       child: Card(
                         child: isLoading
                             ? Center(
-                                child: CircularProgressIndicator(),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text('Sedang masuk')
+                                  ],
+                                ),
                               )
                             : Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -164,11 +173,27 @@ class _LoginPageState extends State<LoginPage> {
                                                       builder: (_) =>
                                                           AllInventory()));
                                             }
-                                          } else {
-                                            print('gagal login');
+                                          } else if (response.statusCode >
+                                              404) {
+                                            print(
+                                                'gagal login ${response.statusCode}');
                                             setState(() {
                                               isLoading = false;
                                             });
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        'Gagal, coba lagi nanti')));
+                                          } else {
+                                            print(
+                                                'gagal login ${response.statusCode}');
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        'Pengguna tidak ditemukan!')));
                                           }
                                         },
                                         child: Text(

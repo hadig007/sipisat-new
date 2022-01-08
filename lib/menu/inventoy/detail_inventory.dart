@@ -14,11 +14,13 @@ class DetailInventory extends StatefulWidget {
   DetailInventory({
     required this.render,
     required this.index,
+    required this.isUser,
     Key? key,
   }) : super(key: key);
 
   List<Invetory> render = [];
   int index;
+  bool? isUser;
 
   @override
   _DetailInventoryState createState() => _DetailInventoryState();
@@ -190,7 +192,7 @@ class _DetailInventoryState extends State<DetailInventory> {
                       ),
                     if (widget.render[widget.index].model != 'null')
                       Text(
-                        widget.render[widget.index].model!,
+                        widget.render[widget.index].model,
                         style: valueStyle,
                       ),
                     if (widget.render[widget.index].sn != 'null')
@@ -200,7 +202,7 @@ class _DetailInventoryState extends State<DetailInventory> {
                       ),
                     if (widget.render[widget.index].sn != 'null')
                       Text(
-                        widget.render[widget.index].sn!,
+                        widget.render[widget.index].sn,
                         style: valueStyle,
                       ),
                     if (widget.render[widget.index].subKategory != 'null')
@@ -210,17 +212,19 @@ class _DetailInventoryState extends State<DetailInventory> {
                       ),
                     if (widget.render[widget.index].subKategory != 'null')
                       Text(
-                        widget.render[widget.index].subKategory!,
+                        widget.render[widget.index].subKategory,
                         style: valueStyle,
                       ),
-                    Text(
-                      'Jumlah',
-                      style: keyStyle,
-                    ),
-                    Text(
-                      widget.render[widget.index].jumlah.toString(),
-                      style: valueStyle,
-                    ),
+                    if (widget.isUser == false)
+                      Text(
+                        'Jumlah',
+                        style: keyStyle,
+                      ),
+                    if (widget.isUser == false)
+                      Text(
+                        widget.render[widget.index].jumlah.toString(),
+                        style: valueStyle,
+                      ),
                     Text(
                       'Keterangan',
                       style: keyStyle,
@@ -231,93 +235,6 @@ class _DetailInventoryState extends State<DetailInventory> {
                     ),
                   ],
                 ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     TextButton(
-                //         onPressed: () async {
-                //           print(
-                //               'akan mendownload qr dengan id ${widget.render![widget.index].idInventory}');
-                //           showModalBottomSheet(
-                //               context: context,
-                //               builder: (_) => Column(
-                //                     mainAxisSize: MainAxisSize.min,
-                //                     children: [
-                //                       RepaintBoundary(
-                //                         key: gl,
-                //                         child: QrImage(
-                //                           data: widget.render![widget.index]
-                //                               .idInventory,
-                //                           size: 400,
-                //                           backgroundColor: Colors.white,
-                //                         ),
-                //                       ),
-                //                     ],
-                //                   ));
-
-                //           // final status = await Permission.storage.status;
-                //           // if (!status.isGranted) {
-                //           //   await Permission.storage.request();
-                //           // }
-
-                //           // boundary = gl.currentContext!.findRenderObject()
-                //           //     as RenderRepaintBoundary?;
-                //           // ui.Image image = await boundary!.toImage();
-                //           // ByteData? byteData = await image.toByteData(
-                //           //     format: ui.ImageByteFormat.png);
-                //           // Uint8List qr = byteData!.buffer.asUint8List();
-                //           // final result = await ImageGallerySaver.saveImage(qr,
-                //           //     name:
-                //           //         'Qr_${widget.render![widget.index].idInventory}',
-                //           //     quality: 100);
-                //           // setState(() {
-                //           //   dw = false;
-                //           // });
-                //           // final isSuccess = result['isSuccess'];
-                //           // if (isSuccess) {
-                //           //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                //           //       content: Text('Berhasil download qr')));
-                //           // }
-                //         },
-                //         child: Text("Download Qr")),
-                //     TextButton(
-                //         onPressed: () async {
-                //           final status = await Permission.storage.status;
-                //           if (!status.isGranted) {
-                //             await Permission.storage.request();
-                //           }
-
-                //           boundary = gl2.currentContext!.findRenderObject()
-                //               as RenderRepaintBoundary?;
-                //           ui.Image image = await boundary!.toImage();
-                //           ByteData? byteData = await image.toByteData(
-                //               format: ui.ImageByteFormat.png);
-                //           Uint8List qr = byteData!.buffer.asUint8List();
-                //           final result = await ImageGallerySaver.saveImage(qr,
-                //               name:
-                //                   'Qr_${widget.render![widget.index].idInventory}',
-                //               quality: 100);
-                //           setState(() {
-                //             dw = false;
-                //           });
-                //           final isSuccess = result['isSuccess'];
-                //           if (isSuccess) {
-                //             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                //                 content: Text('Berhasil download Image')));
-                //           }
-                //         },
-                //         child: Text("Download Img")),
-                //   ],
-                // ),
-                // // if (dw == true)
-                // // RepaintBoundary(
-                // //   key: gl,
-                // //   child: QrImage(
-                // //     data: widget.render![widget.index].idInventory,
-                // //     size: 500,
-                // //     backgroundColor: Colors.white,
-                // //   ),
-                // // ),
               ],
             ),
           ),

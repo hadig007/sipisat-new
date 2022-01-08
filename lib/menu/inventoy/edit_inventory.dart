@@ -308,7 +308,8 @@ class _EditInventoryState extends State<EditInventory> {
                           'nama': _name.text,
                           'merk': _merk.text,
                           'jumlah': _jumlah.text,
-                          'new_jumlah': 'null',
+                          'new_jumlah': 0.toString(),
+                          'jumlah_pinjam': 0.toString(),
                           'keterangan': _keterangan.text,
                           'model': _model.text.isEmpty ? 'null' : _model.text,
                           'sn': _sn.text.isEmpty ? 'null' : _sn.text,
@@ -335,21 +336,28 @@ class _EditInventoryState extends State<EditInventory> {
                             ),
                           );
                           Invetory.editInv(
-                              widget.render![widget.index].id,
-                              'null',
-                              'baru masuk',
-                              invId.toString(),
-                              _name.text,
-                              _merk.text,
-                              _sn.text,
-                              _model.text,
-                              int.parse(_jumlah.text),
-                              _keterangan.text,
-                              newValue!,
-                              newScValues == null ? 'null' : newScValues!,
-                              photo, () {
-                            setState(() {});
-                          });
+                            widget.render![widget.index].id, // String id
+                            'null', // String idSurat
+                            'baru masuk', // String status
+                            'null', // String idPemilik
+                            invId.toString(), // String idInventory
+                            _name.text, // String nama
+                            _merk.text, // String merk
+                            _sn.text, // String sn
+                            _model.text, // String model
+                            int.parse(_jumlah.text), // int jumlah
+                            0, // int new_jumlah
+                            0, // int jumlah_pinjam
+                            _keterangan.text, // String keterangan
+                            newValue!, // String kategory
+                            newScValues == null
+                                ? 'null'
+                                : newScValues!, // String subKategory
+                            photo, // String pathPhoto
+                            () {
+                              setState(() {});
+                            },
+                          );
                           LogModel.sendLog(
                             'id',
                             'edit inv',

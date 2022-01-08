@@ -93,7 +93,7 @@ class TblBarangPnd extends StatefulWidget {
                 ),
                 DataCell(
                   Text(
-                    e.sn!,
+                    e.sn,
                     style: TextStyle(fontSize: 7),
                   ),
                 ),
@@ -111,7 +111,7 @@ class TblBarangPnd extends StatefulWidget {
                 ),
                 DataCell(
                   Text(
-                    jumlah.toString(),
+                    e.jumlahPinjam.toString(),
                     style: TextStyle(fontSize: 7),
                   ),
                 ),

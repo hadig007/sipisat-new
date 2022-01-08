@@ -67,10 +67,17 @@ LOG
 
 1. perbaiki multi login
 
-
+BAP✔️
+1. bap dengan 1 inventaris ✔️✔️
+2. bap dengan 2 inventaris ✔️✔️
+2. bap dengan 3 inventaris ✔️✔️
 PINDAH TANGAN
-1. pindah tangan 1 inv sudah berhasil
-
+1. bap dengan inventaris dengan jumlah 1 -> pindah tangan dengan 1 inventaris -> menghapus inv lama karena jumlahnya 0✔️
+2. bap dengan inventaris dengan jumlah 2 -> pindah tangan dengan 1 inventaris ✔️
 BUG 🪲
-1. setelah pembuatan bap. mesti refresh apk baru bisa buat pindah tangan
+1. setelah pembuatan bap. mesti refresh apk baru bisa buat pindah tangan✔️
 2. pindah tangan tidak berhasil membuat inventory baru
+3. inv pada tampilan semua error ketika pindah status 🪲🪲🪲
+
+07 januari 2022
+1. pengembalian barang yang dipinjam

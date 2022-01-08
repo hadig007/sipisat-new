@@ -87,7 +87,7 @@ class TblBarang extends StatefulWidget {
                 ),
                 DataCell(
                   Text(
-                    jumlah.toString(),
+                    e.newJumlah.toString(),
                     style: TextStyle(fontSize: 7),
                   ),
                 ),
